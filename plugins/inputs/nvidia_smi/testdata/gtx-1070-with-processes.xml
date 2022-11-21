@@ -1,0 +1,32 @@
+<?xml version="1.0" ?>
+<!DOCTYPE nvidia_smi_log SYSTEM "nvsmi_device_v11.dtd">
+<nvidia_smi_log>
+	<timestamp>Mon Nov 21 13:27:36 2022</timestamp>
+	<driver_version>510.85.02</driver_version>
+	<cuda_version>11.6</cuda_version>
+	<attached_gpus>1</attached_gpus>
+	<gpu id="00000000:01:00.0">
+		<product_name>NVIDIA GeForce GTX 1070</product_name>
+		<processes>
+			<process_info>
+				<gpu_instance_id>N/A</gpu_instance_id>
+				<compute_instance_id>N/A</compute_instance_id>
+				<pid>28087</pid>
+				<type>G</type>
+				<process_name>./GpuTest</process_name>
+				<used_memory>3 MiB</used_memory>
+			</process_info>
+			<process_info>
+				<gpu_instance_id>N/A</gpu_instance_id>
+				<compute_instance_id>N/A</compute_instance_id>
+				<pid>28546</pid>
+				<type>G</type>
+				<process_name>./GpuTest</process_name>
+				<used_memory>4 MiB</used_memory>
+			</process_info>
+		</processes>
+		<accounted_processes>
+		</accounted_processes>
+	</gpu>
+
+</nvidia_smi_log>

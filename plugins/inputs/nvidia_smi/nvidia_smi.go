@@ -21,11 +21,14 @@ import (
 var sampleConfig string
 
 const measurement = "nvidia_smi"
+const measurement_process = "nvidia_smi_process"
 
 // NvidiaSMI holds the methods for this plugin
 type NvidiaSMI struct {
 	BinPath string
 	Timeout config.Duration
+
+	Log telegraf.Logger `toml:"-"`
 }
 
 func (*NvidiaSMI) SampleConfig() string {
@@ -88,15 +91,16 @@ func gatherNvidiaSMI(ret []byte, acc telegraf.Accumulator) error {
 	metrics := smi.genTagsFields()
 
 	for _, metric := range metrics {
-		acc.AddFields(measurement, metric.fields, metric.tags)
+		acc.AddFields(metric.measurement, metric.fields, metric.tags)
 	}
 
 	return nil
 }
 
 type metric struct {
-	tags   map[string]string
-	fields map[string]interface{}
+	measurement string
+	tags        map[string]string
+	fields      map[string]interface{}
 }
 
 func (s *SMI) genTagsFields() []metric {
@@ -137,7 +141,28 @@ func (s *SMI) genTagsFields() []metric {
 		setIfUsed("int", fields, "clocks_current_video", gpu.Clocks.Video)
 
 		setIfUsed("float", fields, "power_draw", gpu.Power.PowerDraw)
-		metrics = append(metrics, metric{tags, fields})
+		metrics = append(metrics, metric{measurement, tags, fields})
+
+		for _, proc := range gpu.Processes.ProcessInfo {
+			if proc.PID == "" {
+				continue
+			}
+
+			procTags := map[string]string{}
+			for k, v := range tags {
+				procTags[k] = v
+			}
+			procTags["pid"] = proc.PID
+			setTagIfUsed(procTags, "process_name", proc.ProcessName)
+
+			fields := map[string]interface{}{}
+			setIfUsed("str", fields, "gpu_instance_id", proc.GPUInstanceID)
+			setIfUsed("str", fields, "compute_instance_id", proc.ComputeInstanceID)
+			setIfUsed("str", fields, "type", proc.Type)
+			setIfUsed("bytes", fields, "used_memory", proc.UsedMemory)
+
+			metrics = append(metrics, metric{measurement_process, procTags, fields})
+		}
 	}
 	return metrics
 }
@@ -146,6 +171,22 @@ func setTagIfUsed(m map[string]string, k, v string) {
 	if v != "" {
 		m[k] = v
 	}
+}
+
+var byteUnits = map[string]float64{
+	"B":   1,
+	"KiB": 1024,
+	"MiB": 1024 * 1024,
+	"GiB": 1024 * 1024 * 1024,
+	"TiB": 1024 * 1024 * 1024 * 1024,
+	"PiB": 1024 * 1024 * 1024 * 1024 * 1024,
+	"EiB": 1024 * 1024 * 1024 * 1024 * 1024 * 1024,
+	"kB":  1000,
+	"MB":  1000 * 1000,
+	"GB":  1000 * 1000 * 1000,
+	"TB":  1000 * 1000 * 1000 * 1000,
+	"PB":  1000 * 1000 * 1000 * 1000 * 1000,
+	"EB":  1000 * 1000 * 1000 * 1000 * 1000 * 1000,
 }
 
 func setIfUsed(t string, m map[string]interface{}, k, v string) {
@@ -178,6 +219,17 @@ func setIfUsed(t string, m map[string]interface{}, k, v string) {
 		if val != "" {
 			m[k] = val
 		}
+	case "bytes":
+		unit := "B"
+		if len(vals) > 0 {
+			unit = vals[1]
+		}
+		if multiplier, ok := byteUnits[unit]; ok {
+			f, err := strconv.ParseFloat(val, 64)
+			if err == nil && f >= 0.0 {
+				m[k] = uint64(multiplier * f)
+			}
+		}
 	}
 }
 
@@ -203,6 +255,7 @@ type GPU []struct {
 	Encoder     EncoderStats     `xml:"encoder_stats"`
 	FBC         FBCStats         `xml:"fbc_stats"`
 	Clocks      ClockStats       `xml:"clocks"`
+	Processes   ProcessesStats   `xml:"processes"`
 }
 
 // MemoryStats defines the structure of the memory portions in the smi output.
@@ -262,4 +315,19 @@ type ClockStats struct {
 	SM       string `xml:"sm_clock"`       // int
 	Memory   string `xml:"mem_clock"`      // int
 	Video    string `xml:"video_clock"`    // int
+}
+
+// ProcessStats defines the structure of the processes
+type ProcessesStats struct {
+	ProcessInfo []ProcessInfo `xml:"process_info"`
+}
+
+// ProcessInfo defines the structure of the process
+type ProcessInfo struct {
+	GPUInstanceID     string `xml:"gpu_instance_id"`
+	ComputeInstanceID string `xml:"compute_instance_id"`
+	PID               string `xml:"pid"`
+	Type              string `xml:"type"`
+	ProcessName       string `xml:"process_name"`
+	UsedMemory        string `xml:"used_memory"`
 }

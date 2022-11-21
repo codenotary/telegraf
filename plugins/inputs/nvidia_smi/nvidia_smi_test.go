@@ -134,6 +134,53 @@ func TestGatherValidXML(t *testing.T) {
 					time.Unix(0, 0)),
 			},
 		},
+		{
+			name:     "GeForce GTX 1070 with processes",
+			filename: "gtx-1070-with-processes.xml",
+			expected: []telegraf.Metric{
+				testutil.MustMetric(
+					"nvidia_smi",
+					map[string]string{
+						"index": "0",
+						"name":  "NVIDIA GeForce GTX 1070",
+					},
+					map[string]interface{}{
+						"cuda_version":   "11.6",
+						"driver_version": "510.85.02",
+					},
+					time.Unix(0, 0)),
+				testutil.MustMetric(
+					"nvidia_smi_process",
+					map[string]string{
+						"name":  "NVIDIA GeForce GTX 1070",
+						"index": "0",
+						"pid":   "28087",
+					},
+					map[string]interface{}{
+						"gpu_instance_id":     "N/A",
+						"compute_instance_id": "N/A",
+						"type":                "G",
+						"process_name":        "./GpuTest",
+						"used_memory":         uint64(3145728),
+					},
+					time.Unix(0, 0)),
+				testutil.MustMetric(
+					"nvidia_smi_process",
+					map[string]string{
+						"name":  "NVIDIA GeForce GTX 1070",
+						"index": "0",
+						"pid":   "28546",
+					},
+					map[string]interface{}{
+						"gpu_instance_id":     "N/A",
+						"compute_instance_id": "N/A",
+						"type":                "G",
+						"process_name":        "./GpuTest",
+						"used_memory":         uint64(4194304),
+					},
+					time.Unix(0, 0)),
+			},
+		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
