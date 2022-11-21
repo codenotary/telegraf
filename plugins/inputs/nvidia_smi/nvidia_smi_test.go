@@ -152,31 +152,31 @@ func TestGatherValidXML(t *testing.T) {
 				testutil.MustMetric(
 					"nvidia_smi_process",
 					map[string]string{
-						"name":  "NVIDIA GeForce GTX 1070",
-						"index": "0",
-						"pid":   "28087",
-					},
-					map[string]interface{}{
+						"name":                "NVIDIA GeForce GTX 1070",
+						"index":               "0",
+						"pid":                 "28087",
 						"gpu_instance_id":     "N/A",
 						"compute_instance_id": "N/A",
 						"type":                "G",
 						"process_name":        "./GpuTest",
-						"used_memory":         uint64(3145728),
+					},
+					map[string]interface{}{
+						"used_memory": uint64(3145728),
 					},
 					time.Unix(0, 0)),
 				testutil.MustMetric(
 					"nvidia_smi_process",
 					map[string]string{
-						"name":  "NVIDIA GeForce GTX 1070",
-						"index": "0",
-						"pid":   "28546",
-					},
-					map[string]interface{}{
+						"name":                "NVIDIA GeForce GTX 1070",
+						"index":               "0",
+						"pid":                 "28546",
 						"gpu_instance_id":     "N/A",
 						"compute_instance_id": "N/A",
 						"type":                "G",
 						"process_name":        "./GpuTest",
-						"used_memory":         uint64(4194304),
+					},
+					map[string]interface{}{
+						"used_memory": uint64(4194304),
 					},
 					time.Unix(0, 0)),
 			},

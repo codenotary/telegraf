@@ -154,11 +154,11 @@ func (s *SMI) genTagsFields() []metric {
 			}
 			procTags["pid"] = proc.PID
 			setTagIfUsed(procTags, "process_name", proc.ProcessName)
+			setTagIfUsed(procTags, "gpu_instance_id", proc.GPUInstanceID)
+			setTagIfUsed(procTags, "compute_instance_id", proc.ComputeInstanceID)
+			setTagIfUsed(procTags, "type", proc.Type)
 
 			fields := map[string]interface{}{}
-			setIfUsed("str", fields, "gpu_instance_id", proc.GPUInstanceID)
-			setIfUsed("str", fields, "compute_instance_id", proc.ComputeInstanceID)
-			setIfUsed("str", fields, "type", proc.Type)
 			setIfUsed("bytes", fields, "used_memory", proc.UsedMemory)
 
 			metrics = append(metrics, metric{measurement_process, procTags, fields})
