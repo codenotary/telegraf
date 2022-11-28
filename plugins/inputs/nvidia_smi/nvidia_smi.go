@@ -158,7 +158,7 @@ func (s *SMI) genTagsFields() []metric {
 			setTagIfUsed(procTags, "compute_instance_id", proc.ComputeInstanceID)
 			setTagIfUsed(procTags, "type", proc.Type)
 
-			fields := map[string]interface{}{}
+			fields := map[string]interface{}{"used_memory": uint64(0)} // Always specify the used memory
 			setIfUsed("bytes", fields, "used_memory", proc.UsedMemory)
 
 			metrics = append(metrics, metric{measurement_process, procTags, fields})
@@ -221,7 +221,7 @@ func setIfUsed(t string, m map[string]interface{}, k, v string) {
 		}
 	case "bytes":
 		unit := "B"
-		if len(vals) > 0 {
+		if len(vals) > 1 {
 			unit = vals[1]
 		}
 		if multiplier, ok := byteUnits[unit]; ok {

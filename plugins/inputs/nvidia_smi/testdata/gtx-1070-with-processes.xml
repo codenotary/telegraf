@@ -14,7 +14,7 @@
 				<pid>28087</pid>
 				<type>G</type>
 				<process_name>./GpuTest</process_name>
-				<used_memory>3 MiB</used_memory>
+				<used_memory>N/A</used_memory>
 			</process_info>
 			<process_info>
 				<gpu_instance_id>N/A</gpu_instance_id>

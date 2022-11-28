@@ -161,7 +161,7 @@ func TestGatherValidXML(t *testing.T) {
 						"process_name":        "./GpuTest",
 					},
 					map[string]interface{}{
-						"used_memory": uint64(3145728),
+						"used_memory": uint64(0),
 					},
 					time.Unix(0, 0)),
 				testutil.MustMetric(
